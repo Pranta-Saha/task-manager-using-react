@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import { ReactDOM } from 'react';
+import axios from 'axios';
+
+const complete = "complete";
+const pending = "pending";
 
 function AddTask(props)
 {
@@ -32,7 +36,7 @@ function ShowList(props)
       <hr></hr>
       <h3>Tasks:</h3>
       <ul>
-        {props.list.map((item, index) => <li key={index}> {item.title}
+        {props.list.map((item, index) => <li key={index}>Title: {item.title}. Id: <br></br>
           <button onClick={()=>props.toggle(index)}>{item.status}</button>
           <button onClick={()=>props.delete(index)}>Delete</button>
           <AddSubtask addToList={props.addToList} index={index} />
@@ -56,21 +60,46 @@ function Tasks() {
   const [addTaskValue, setAddTaskValue] = React.useState("");
 
   const addTaskToList = (input) => {
+    if(input == ""){
+      return;
+    }
     let tmpTask = {
       title: input,
-      status: 'incomplete',
-      subtasks: [],
+      status: pending,
     };
-    setTasklist([tmpTask, ...taskList]);
-    setAddTaskValue("");
+    console.log(tmpTask);
+    axios
+      .post('localhost:8000/api/tasks',tmpTask)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => {
+        console.log(error);
+      })
+
+    //setTasklist([tmpTask, ...taskList]);
+    //setAddTaskValue("");
   };
+
+
+
+
+
+
+
+
+
+
 
   const addSubtask = (value, index) => {
     let tmpTask = taskList[index];
+    if(value == ""){
+      return;
+    }
 
     let tmpSubtask = {
       title: value,
-      status: 'incomplete',
+      status: pending,
     }
     tmpTask.subtasks.push(tmpSubtask);
 
@@ -81,15 +110,15 @@ function Tasks() {
 
   const toggleTaskStatus = (index) => {
     let tmpTask = taskList[index];
-    if(tmpTask.status == 'complete') 
+    if(tmpTask.status == complete) 
     {
-      tmpTask.status = 'incomplete';
+      tmpTask.status = pending;
     }
     else
     {
-      tmpTask.status = 'complete';
+      tmpTask.status = complete;
       tmpTask.subtasks.map((item,tmpindex)=>{
-        item.status = 'complete';
+        item.status = complete;
       });
     }
     let tmplist = taskList.filter((item,indx)=> index!=indx );
@@ -100,14 +129,14 @@ function Tasks() {
   const toggleSubtaskStatus = (index,indx) =>{
     console.log("ok");
     let tmpTask = taskList[index];
-    if(tmpTask.subtasks[indx].status == 'complete') 
+    if(tmpTask.subtasks[indx].status == complete) 
     {
-      tmpTask.subtasks[indx].status = 'incomplete';
-      tmpTask.status = 'incomplete';
+      tmpTask.subtasks[indx].status = pending;
+      tmpTask.status = pending;
     }
     else
     {
-      tmpTask.subtasks[indx].status = 'complete';
+      tmpTask.subtasks[indx].status = complete;
     }
 
     let tmplist = taskList.filter((item,tmpIndex)=>tmpIndex!=index);
@@ -125,7 +154,6 @@ function Tasks() {
     <div>
       <h1>Task Manager</h1>
       <AddTask value={addTaskValue} setValue={setAddTaskValue} addToList={addTaskToList} />
-      {console.log(taskList.length)}
       <ShowList list={taskList} toggle={toggleTaskStatus} addToList={addSubtask} delete={deleteTask} toggleSubtaskStatus={toggleSubtaskStatus}/>
     </div>
   );
