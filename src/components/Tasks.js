@@ -30,6 +30,18 @@ function AddSubtask(props)
 
 function ShowList(props)
 {
+  const componentDidMount = (props) => {
+    axios.get('http://127.0.0.1:8000/api/tasks')
+      .then(response=>{
+        console.log("OK");
+        console.log(response);
+        props.setList(response.data);
+      })
+      .catch(error=>{
+        console.log(error);
+      })
+  }
+
   return(
     <div>
       <hr></hr>
@@ -69,7 +81,7 @@ function Tasks() {
     };
     console.log(tmpTask);
     axios
-      .post('localhost:8000/api/tasks',tmpTask)
+      .post('http://127.0.0.1:8000/api/tasks',tmpTask)
       .then(response => {
         console.log(response);
       })
@@ -77,19 +89,9 @@ function Tasks() {
         console.log(error);
       })
 
-    //setTasklist([tmpTask, ...taskList]);
-    //setAddTaskValue("");
+    setTasklist([]);
+    setAddTaskValue("");
   };
-
-
-
-
-
-
-
-
-
-
 
   const addSubtask = (value, index) => {
     let tmpTask = taskList[index];
@@ -154,7 +156,7 @@ function Tasks() {
     <div>
       <h1>Task Manager</h1>
       <AddTask value={addTaskValue} setValue={setAddTaskValue} addToList={addTaskToList} />
-      <ShowList list={taskList} toggle={toggleTaskStatus} addToList={addSubtask} delete={deleteTask} toggleSubtaskStatus={toggleSubtaskStatus}/>
+      <ShowList list={taskList} setList={setTasklist} toggle={toggleTaskStatus} addToList={addSubtask} delete={deleteTask} toggleSubtaskStatus={toggleSubtaskStatus}/>
     </div>
   );
 }
